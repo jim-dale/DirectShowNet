@@ -35,6 +35,7 @@ using System.Runtime.InteropServices.ComTypes;
 
 using DirectShowLib.Dvd;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace DirectShowLib
 {
@@ -915,6 +916,7 @@ namespace DirectShowLib
         public const int E_VMRNoProcAMPHW = unchecked((int)0x80040299);
         public const int E_DVDVMR9IncompatibleDec = unchecked((int)0x8004029A);
         public const int E_NoCOPPHW = unchecked((int)0x8004029B);
+        public const int E_MoreData = unchecked((int)0x800700EA);
     }
 
 
@@ -1068,76 +1070,37 @@ namespace DirectShowLib
 
         #region APIs
         [DllImport("ole32.dll", ExactSpelling = true), SuppressUnmanagedCodeSecurity]
-#if USING_NET11
-        private static extern int GetRunningObjectTable(int r, out UCOMIRunningObjectTable pprot);
-#else
         private static extern int GetRunningObjectTable(int r, out IRunningObjectTable pprot);
-#endif
 
         [DllImport("ole32.dll", CharSet = CharSet.Unicode, ExactSpelling = true), SuppressUnmanagedCodeSecurity]
-#if USING_NET11
-        private static extern int CreateItemMoniker(string delim, string item, out UCOMIMoniker ppmk);
-#else
         private static extern int CreateItemMoniker(string delim, string item, out IMoniker ppmk);
-#endif
         #endregion
 
         public DsROTEntry(IFilterGraph graph)
         {
-            int hr = 0;
-#if USING_NET11
-            UCOMIRunningObjectTable rot = null;
-            UCOMIMoniker mk = null;
-#else
-            IRunningObjectTable rot = null;
-            IMoniker mk = null;
-#endif
+            // First, get a pointer to the running object table
+            int hr = GetRunningObjectTable(0, out IRunningObjectTable rot);
+            DsError.ThrowExceptionForHR(hr);
+
+            // Build up the object to add to the table
+            int id = Process.GetCurrentProcess().Id;
+            IntPtr iuPtr = Marshal.GetIUnknownForObject(graph);
+            string s;
             try
             {
-                // First, get a pointer to the running object table
-                hr = GetRunningObjectTable(0, out rot);
-                DsError.ThrowExceptionForHR(hr);
-
-                // Build up the object to add to the table
-                int id = System.Diagnostics.Process.GetCurrentProcess().Id;
-                IntPtr iuPtr = Marshal.GetIUnknownForObject(graph);
-                string s;
-                try
-                {
-                    s = iuPtr.ToString("x");
-                }
-                catch
-                {
-                    s = "";
-                }
-                finally
-                {
-                    Marshal.Release(iuPtr);
-                }
-                string item = string.Format("FilterGraph {0} pid {1}", s, id.ToString("x8"));
-                hr = CreateItemMoniker("!", item, out mk);
-                DsError.ThrowExceptionForHR(hr);
-
-                // Add the object to the table
-#if USING_NET11
-                rot.Register((int)ROTFlags.RegistrationKeepsAlive, graph, mk, out m_cookie);
-#else
-                m_cookie = rot.Register((int)ROTFlags.RegistrationKeepsAlive, graph, mk);
-#endif
+                s = iuPtr.ToString("x");
             }
-            finally
+            catch
             {
-                if (mk != null)
-                {
-                    Marshal.ReleaseComObject(mk);
-                    mk = null;
-                }
-                if (rot != null)
-                {
-                    Marshal.ReleaseComObject(rot);
-                    rot = null;
-                }
+                s = "";
             }
+
+            string item = string.Format("FilterGraph {0} pid {1:x8}", s, id);
+            hr = CreateItemMoniker("!", item, out IMoniker mk);
+            DsError.ThrowExceptionForHR(hr);
+
+            // Add the object to the table
+            m_cookie = rot.Register((int)ROTFlags.RegistrationKeepsAlive, graph, mk);
         }
 
         ~DsROTEntry()
@@ -1150,27 +1113,14 @@ namespace DirectShowLib
             if (m_cookie != 0)
             {
                 GC.SuppressFinalize(this);
-#if USING_NET11
-                UCOMIRunningObjectTable rot = null;
-#else
-                IRunningObjectTable rot = null;
-#endif
 
                 // Get a pointer to the running object table
-                int hr = GetRunningObjectTable(0, out rot);
+                int hr = GetRunningObjectTable(0, out IRunningObjectTable rot);
                 DsError.ThrowExceptionForHR(hr);
 
-                try
-                {
-                    // Remove our entry
-                    rot.Revoke(m_cookie);
-                    m_cookie = 0;
-                }
-                finally
-                {
-                    Marshal.ReleaseComObject(rot);
-                    rot = null;
-                }
+                // Remove our entry
+                rot.Revoke(m_cookie);
+                m_cookie = 0;
             }
         }
     }

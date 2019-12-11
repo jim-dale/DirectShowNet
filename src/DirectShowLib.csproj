@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyVersion>2.2.0.0</AssemblyVersion>
-    <FileVersion>2.2.0.0</FileVersion>
+    <AssemblyVersion>2.2.0.1</AssemblyVersion>
+    <FileVersion>2.2.0.1</FileVersion>
     <Product>DirectShow Net Library</Product>
     <ProjectGuid>6D0386CE-37E6-4f77-B678-07C584105DC6</ProjectGuid>
     <Description>.NET Interfaces for calling DirectShow.  See http://directshownet.sourceforge.net/</Description>
@@ -11,7 +11,7 @@
     <Product>$(Configuration)</Product>
     <ProductVersion>2.2.0.0</ProductVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <PackageProjectUrl>http://directshownet.sourceforge.net/</PackageProjectUrl>
     <PackageLicenseExpression>LGPL-2.1-only</PackageLicenseExpression>
   </PropertyGroup>
