@@ -1435,7 +1435,7 @@ namespace DirectShowLib
         /// <returns>Concatenation of MajorType + SubType + FormatType + Fixed + Temporal + SampleSize.ToString</returns>
         public static string AMMediaTypeToString(AMMediaType pmt)
         {
-            return string.Format("{0} {1} {2} {3} {4} {5}",
+            return string.Format(nameof(AMMediaType) + "\\{0}\\{1}\\{2}\\{3}\\{4}\\{5}",
                 MediaTypeToString(pmt.majorType),
                 MediaSubTypeToString(pmt.subType),
                 MediaFormatTypeToString(pmt.formatType),
@@ -1494,15 +1494,15 @@ namespace DirectShowLib
         /// <summary>
         /// Use reflection to walk a class looking for a property containing a specified guid
         /// </summary>
-        /// <param name="MyType">Class to scan</param>
+        /// <param name="type">Class to scan</param>
         /// <param name="guid">Guid to scan for</param>
         /// <returns>String representing property name that matches, or Guid.ToString() for no match</returns>
-        private static string WalkClass(Type MyType, Guid guid)
+        private static string WalkClass(Type type, Guid guid)
         {
             object o = null;
 
             // Read the fields from the class
-            FieldInfo[] Fields = MyType.GetFields();
+            FieldInfo[] Fields = type.GetFields();
 
             // Walk the returned array
             foreach (FieldInfo m in Fields)

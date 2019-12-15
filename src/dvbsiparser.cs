@@ -90,6 +90,12 @@ namespace DirectShowLib.BDA
           [In] DsShort pwProgramNumber,
           [Out] out IPMT ppPMT
           );
+        [PreserveSig]
+        int GetPMT(
+          [In] short pid,
+          [In] IntPtr pwProgramNumber,
+          [Out] out IPMT ppPMT
+          );
 
         [PreserveSig]
         int GetTSDT([Out] out ITSDT ppTSDT);
@@ -100,6 +106,12 @@ namespace DirectShowLib.BDA
           [In] DsShort pwNetworkId,
           [Out] out IDVB_NIT ppNIT
           );
+        [PreserveSig]
+        int GetNIT(
+          [In] byte tableId,
+          [In] IntPtr pwNetworkId,
+          [Out] out IDVB_NIT ppNIT
+          );
 
         [PreserveSig]
         int GetSDT(
@@ -107,11 +119,23 @@ namespace DirectShowLib.BDA
           [In] DsShort pwTransportStreamId,
           [Out] out IDVB_SDT ppSDT
           );
+        [PreserveSig]
+        int GetSDT(
+          [In] byte tableId,
+          [In] IntPtr pwTransportStreamId,
+          [Out] out IDVB_SDT ppSDT
+          );
 
+        //[PreserveSig]
+        //int GetEIT(
+        //  [In] byte tableId,
+        //  [In] Int16 pwServiceId,
+        //  [Out] out IDVB_EIT ppEIT
+        //  );
         [PreserveSig]
         int GetEIT(
           [In] byte tableId,
-          [In] DsShort pwServiceId,
+          [In] IntPtr pwServiceId,
           [Out] out IDVB_EIT ppEIT
           );
 
@@ -1361,6 +1385,13 @@ namespace DirectShowLib.BDA
             [MarshalAs(UnmanagedType.Interface)] out IDVB_EIT2 ppEIT
             );
 
+        [PreserveSig]
+        int GetEIT2(
+            [In] byte TableId,
+            [In] IntPtr pwServiceId,
+            [In] IntPtr pbSegment,
+            [MarshalAs(UnmanagedType.Interface)] out IDVB_EIT2 ppEIT
+            );
     }
 
     [ComImport, System.Security.SuppressUnmanagedCodeSecurity,
